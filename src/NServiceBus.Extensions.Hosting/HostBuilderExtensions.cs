@@ -2,6 +2,7 @@
 {
     using System;
     using Extensions.Hosting;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
 
@@ -13,15 +14,21 @@
         /// <summary>
         /// Configures the host to start an NServiceBus endpoint.
         /// </summary>
-        public static IHostBuilder UseNServiceBus(this IHostBuilder hostBuilder, Func<HostBuilderContext, EndpointConfiguration> endpointConfigurationBuilder)
+        public static IHostBuilder UseNServiceBus(
+            this IHostBuilder hostBuilder,
+            Func<HostBuilderContext, EndpointConfiguration> endpointConfigurationBuilder,
+            Action<IServiceCollection, IConfiguration> configureServicesForHandlers = null)
         {
             hostBuilder.ConfigureServices((ctx, serviceCollection) =>
             {
-                var endpointConfiguration = endpointConfigurationBuilder(ctx);
-                var startableEndpoint = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, new ServiceCollectionAdapter(serviceCollection));
+                var newServiceCollection = new ServiceCollection();
+                configureServicesForHandlers?.Invoke(newServiceCollection, ctx.Configuration);
 
-                serviceCollection.AddSingleton(_ => startableEndpoint.MessageSession.Value);
-                serviceCollection.AddSingleton<IHostedService>(serviceProvider => new NServiceBusHostedService(startableEndpoint, serviceProvider));
+                var endpointConfiguration = endpointConfigurationBuilder(ctx);
+                var startableEndpoint = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, new ServiceCollectionAdapter(newServiceCollection));
+
+                newServiceCollection.AddSingleton(_ => startableEndpoint.MessageSession.Value);
+                serviceCollection.AddTransient<IHostedService>(_ => new NServiceBusHostedService(startableEndpoint, newServiceCollection.BuildServiceProvider()));
             });
 
             return hostBuilder;
