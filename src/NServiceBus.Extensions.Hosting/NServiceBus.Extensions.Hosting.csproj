@@ -8,7 +8,7 @@
   <PropertyGroup>
     <Description>Easy integration with Microsoft.Extensions.Hosting for NServiceBus</Description>
     <PackageId>NServiceBus.Extensions.Hosting.MultiHosting</PackageId>
-    <Version>1.0.0-MultiHosting</Version>
+    <Version>1.0.0-MultiHosting-1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/vintage-software/NServiceBus.Extensions.Hosting</RepositoryUrl>
     <PackageProjectUrl>https://github.com/vintage-software/NServiceBus.Extensions.Hosting</PackageProjectUrl>

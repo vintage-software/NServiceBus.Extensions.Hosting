@@ -28,6 +28,7 @@
                 var startableEndpoint = EndpointWithExternallyManagedContainer.Create(endpointConfiguration, new ServiceCollectionAdapter(newServiceCollection));
 
                 newServiceCollection.AddSingleton(_ => startableEndpoint.MessageSession.Value);
+                serviceCollection.AddSingleton(_ => startableEndpoint.MessageSession.Value);
                 serviceCollection.AddTransient<IHostedService>(_ => new NServiceBusHostedService(startableEndpoint, newServiceCollection.BuildServiceProvider()));
             });
 
